@@ -22,5 +22,9 @@ cd RouteGaurd
  ```bash
  npm run dev
  ```
+4. **The app will be available at:**
+```bash
+http://localhost:5173  ← (Vite)
+```
 
 
