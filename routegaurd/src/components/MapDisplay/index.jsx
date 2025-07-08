@@ -1,4 +1,3 @@
-import React from "react";
 import { GoogleMap, DirectionsRenderer } from "@react-google-maps/api";
 
 const containerStyle = {
@@ -8,12 +7,14 @@ const containerStyle = {
 
 const MapDisplay = ({ center, onClick, directionsResponse }) => (
   <GoogleMap
-    mapContainerStyle={containerStyle}
+   mapContainerStyle={containerStyle}
+    zoom={10}
     center={center}
-    zoom={7}
     onClick={onClick}
   >
-    {directionsResponse && <DirectionsRenderer directions={directionsResponse} />}
+    {directionsResponse && (
+      <DirectionsRenderer directions={directionsResponse} />
+    )}
   </GoogleMap>
 );
 
