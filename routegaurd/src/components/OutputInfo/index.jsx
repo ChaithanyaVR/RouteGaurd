@@ -10,7 +10,7 @@ const OutputInfo = ({ error, output }) => {
         )}
   
         {output && (
-          <div className="bg-gray-100 text-gray-600 font-semibold px-4 rounded-md text-sm mt-4">
+          <div className="bg-gray-100 text-gray-600 font-semibold rounded-md text-sm">
             {output}
           </div>
         )}

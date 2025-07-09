@@ -1,8 +1,11 @@
 import React, { useRef, useState } from "react";
-import { LoadScript } from "@react-google-maps/api";
+import { useJsApiLoader } from "@react-google-maps/api";
 import LocationInput from "../LocationInput";
 import OutputInfo from "../OutputInfo";
 import MapDisplay from "../MapDisplay";
+import Loader from "../Loader";
+import LightModeImg from "../../assets/light-mode.png";
+import NightModeImg from "../../assets/night-mode.png";
 
 const center = { lat: 12.9629, lng: 77.5775 };
 
@@ -39,10 +42,18 @@ const MapRoute = () => {
   const [criteria, setCriteria] = useState(
     Object.fromEntries(Object.keys(criteriaConfig).map((key) => [key, false]))
   );
+  const [isNightMode, setIsNightMode] = useState(false);
 
   const originRef = useRef(null);
   const destinationRef = useRef(null);
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey,
+    libraries: ["places"],
+  });
+
+  if (!isLoaded) return <Loader />;
 
   const scoreRoute = (route) => {
     return Object.entries(criteria)
@@ -107,13 +118,14 @@ const MapRoute = () => {
           console.log("Warnings:", bestRoute.warnings);
 
           setOutput(
-            <div className="alert alert-info border-2 border-grey rounded-md p-2">
+            <div className="alert alert-info border-2 border-grey rounded-md p-4">
               <div>
                 <strong>From:</strong> {leg.start_address}
               </div>
               <div>
                 <strong>To:</strong> {leg.end_address}
-              </div>
+              </div>{" "}
+              &nbsp;
               <div>
                 <strong>Distance:</strong> {leg.distance.text} &nbsp;&nbsp;
                 <strong>Duration:</strong> {leg.duration.text}
@@ -174,73 +186,84 @@ const MapRoute = () => {
   };
 
   return (
-    <LoadScript googleMapsApiKey={googleMapsApiKey} libraries={["places"]}>
-      <div className="flex flex-col md:flex-row gap-6 p-4">
-        <div className="w-full md:w-3/4">
-          <h3 className="mb-4 text-xl font-bold text-gray-600">
-            Distance Between Two Places
-          </h3>
-          <div className="rounded-xl overflow-hidden shadow-md bg-[#686868] p-6">
-            <MapDisplay
-              center={center}
-              onClick={handleMapClick}
-              directionsResponse={directionsResponse}
-            />
-          </div>
-        </div>
+    <div className="flex flex-col md:flex-row gap-6 p-4">
+      <div className="w-full md:w-2/3 p-4">
+        <h3 className="mb-4 text-xl font-bold text-gray-600">
+          Distance Between Two Places
+        </h3>
 
-        <div className="w-full md:w-1/4 space-y-10">
-          <LocationInput
-            label="Origin (Point A)"
-            type="origin"
-            inputRef={originRef}
-            onUseLocation={handleUseCurrentLocation}
-            onSelectOnMap={() => setSelectedPoint("origin")}
-            selected={selectedPoint === "origin"}
+        <button
+          className="bg-gray-200 text-white py-1 px-3 rounded-full mb-4"
+          onClick={() => setIsNightMode((prev) => !prev)}
+        >
+          <img
+            src={isNightMode ? LightModeImg : NightModeImg}
+            alt={isNightMode ? "Switch to Day Mode" : "Switch to Night Mode"}
+            className="w-8 h-8"
           />
-          <LocationInput
-            label="Destination (Point B)"
-            type="destination"
-            inputRef={destinationRef}
-            onSelectOnMap={() => setSelectedPoint("destination")}
-            selected={selectedPoint === "destination"}
-          />
+        </button>
 
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-300">
-              Optimization Criteria
-            </label>
-            <div className="flex flex-col gap-2">
-              {Object.entries(criteriaConfig).map(([key, { label }]) => (
-                <label key={key} className="text-sm">
-                  <input
-                    type="checkbox"
-                    className="mr-2"
-                    checked={criteria[key]}
-                    onChange={(e) =>
-                      setCriteria((prev) => ({
-                        ...prev,
-                        [key]: e.target.checked,
-                      }))
-                    }
-                  />
-                  {label}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <button
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
-            onClick={handleCalculateRoute}
-          >
-            Calculate Distance
-          </button>
-
-          <OutputInfo error={error} output={output} />
-        </div>
+        <MapDisplay
+          center={center}
+          onClick={handleMapClick}
+          directionsResponse={directionsResponse}
+          isNightMode={isNightMode}
+        />
       </div>
-    </LoadScript>
+
+      <div className="hidden md:block w-1 h-140 bg-gray-300 mx-4 self-center"></div>
+
+      <div className="w-full md:w-1/3 space-y-5 p-4">
+        <LocationInput
+          label="Origin (Point A)"
+          type="origin"
+          inputRef={originRef}
+          onUseLocation={handleUseCurrentLocation}
+          onSelectOnMap={() => setSelectedPoint("origin")}
+          selected={selectedPoint === "origin"}
+        />
+        <LocationInput
+          label="Destination (Point B)"
+          type="destination"
+          inputRef={destinationRef}
+          onSelectOnMap={() => setSelectedPoint("destination")}
+          selected={selectedPoint === "destination"}
+        />
+
+        <div className="pt-5 space-y-2">
+          <label className="block text-md font-medium text-gray-400">
+            Choose Optimization Criteria
+          </label>
+          <div className="flex flex-col gap-2">
+            {Object.entries(criteriaConfig).map(([key, { label }]) => (
+              <label key={key} className="text-sm">
+                <input
+                  type="checkbox"
+                  className="mr-2"
+                  checked={criteria[key]}
+                  onChange={(e) =>
+                    setCriteria((prev) => ({
+                      ...prev,
+                      [key]: e.target.checked,
+                    }))
+                  }
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <button
+          className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition"
+          onClick={handleCalculateRoute}
+        >
+          Submit
+        </button>
+
+        <OutputInfo error={error} output={output} />
+      </div>
+    </div>
   );
 };
 
