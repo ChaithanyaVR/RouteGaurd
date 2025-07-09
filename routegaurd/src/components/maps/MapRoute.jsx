@@ -116,30 +116,14 @@ const MapRoute = () => {
           console.log("Distance:", leg.distance.text);
           console.log("Duration:", leg.duration.text);
           console.log("Warnings:", bestRoute.warnings);
-
-          setOutput(
-            <div className="alert alert-info border-2 border-grey rounded-md p-4">
-              <div>
-                <strong>From:</strong> {leg.start_address}
-              </div>
-              <div>
-                <strong>To:</strong> {leg.end_address}
-              </div>{" "}
-              &nbsp;
-              <div>
-                <strong>Distance:</strong> {leg.distance.text} &nbsp;&nbsp;
-                <strong>Duration:</strong> {leg.duration.text}
-              </div>
-              {criteria.noTolls && (
-                <div className="text-yellow-500 mt-2">
-                  {hasTolls
-                    ? "⚠️ Route includes tolls."
-                    : "✅ Route avoids tolls."}
-                </div>
-              )}
-            </div>
-          );
-
+          setOutput({
+            from: leg.start_address,
+            to: leg.end_address,
+            distance: leg.distance.text,
+            duration: leg.duration.text,
+            hasTolls,
+            showTollWarning: criteria.noTolls,
+          });          
           setError("");
         } else {
           setDirectionsResponse(null);
@@ -186,14 +170,26 @@ const MapRoute = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-6 p-4">
+    <div
+      className={`flex flex-col md:flex-row gap-6 p-4 min-h-screen transition-colors duration-300 ${
+        isNightMode ? "bg-[#121212] text-gray-200" : "bg-white text-gray-900"
+      }`}
+    >
       <div className="w-full md:w-2/3 p-4">
-        <h3 className="mb-4 text-xl font-bold text-gray-600">
+        <h3
+          className={`mb-4 text-xl font-bold ${
+            isNightMode ? "text-white" : "text-gray-600"
+          }`}
+        >
           Distance Between Two Places
         </h3>
 
         <button
-          className="bg-gray-200 text-white py-1 px-3 rounded-full mb-4"
+          className={`py-1 px-3 rounded-full mb-4 transition ${
+            isNightMode
+              ? "bg-gray-300 hover:bg-gray-400"
+              : "bg-gray-200 hover:bg-gray-300"
+          }`}
           onClick={() => setIsNightMode((prev) => !prev)}
         >
           <img
@@ -223,6 +219,7 @@ const MapRoute = () => {
           onUseLocation={handleUseCurrentLocation}
           onSelectOnMap={() => setSelectedPoint("origin")}
           selected={selectedPoint === "origin"}
+          isNightMode={isNightMode}
         />
         <LocationInput
           label="Destination (Point B)"
@@ -230,6 +227,7 @@ const MapRoute = () => {
           inputRef={destinationRef}
           onSelectOnMap={() => setSelectedPoint("destination")}
           selected={selectedPoint === "destination"}
+          isNightMode={isNightMode}
         />
 
         <div className="pt-5 space-y-2">
@@ -257,13 +255,18 @@ const MapRoute = () => {
         </div>
 
         <button
-          className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition"
+          className={`w-full py-2 rounded-md transition ${
+            isNightMode
+              ? "bg-green-700 hover:bg-green-600 text-white"
+              : "bg-green-600 hover:bg-green-700 text-white"
+          }`}
           onClick={handleCalculateRoute}
         >
           Get Route
         </button>
 
-        <OutputInfo error={error} output={output} />
+        <OutputInfo error={error} output={output} isNightMode={isNightMode} />
+
       </div>
     </div>
   );
