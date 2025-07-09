@@ -90,7 +90,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={isSigningIn}
-              className={`w-full px-4 py-2 text-white font-medium rounded-lg ${
+              className={`w-full px-4 py-2 text-white cursor-pointer font-medium rounded-lg ${
                 isSigningIn
                   ? "bg-gray-300 cursor-not-allowed"
                   : "bg-indigo-600 hover:bg-indigo-700 hover:shadow-xl transition duration-300"
@@ -101,7 +101,7 @@ const Login = () => {
           </form>
           <p className="text-center text-sm">
             Don't have an account?{" "}
-            <Link to={"/register"} className="hover:underline font-bold">
+            <Link to={"/register"} className="hover:underline font-bold cursor-pointer">
               Sign up
             </Link>
           </p>

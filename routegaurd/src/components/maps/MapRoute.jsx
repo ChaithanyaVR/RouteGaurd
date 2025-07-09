@@ -208,6 +208,8 @@ const MapRoute = () => {
           onClick={handleMapClick}
           directionsResponse={directionsResponse}
           isNightMode={isNightMode}
+          originCoords={originCoords}
+          destinationCoords={destinationCoords}
         />
       </div>
 
@@ -258,7 +260,7 @@ const MapRoute = () => {
           className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition"
           onClick={handleCalculateRoute}
         >
-          Submit
+          Get Route
         </button>
 
         <OutputInfo error={error} output={output} />
